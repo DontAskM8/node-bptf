@@ -1,2 +1,4 @@
 # node-bptf
-A node module to interact with backpack.tf's API
+
+## Methods
+### getApiKey(accessToken, callback)
