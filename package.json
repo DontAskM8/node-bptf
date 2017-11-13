@@ -1,0 +1,16 @@
+{
+  "name": "bptf",
+  "version": "1.0.0",
+  "description": "Node module to interact with backpack.tf's API",
+  "main": "index.js",
+  "dependencies": {
+    "events": "^1.1.1",
+    "request": "^2.83.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node test.js"
+  },
+  "author": "DontAsk",
+  "license": "ISC"
+}
