@@ -1,74 +1,71 @@
 var request = require('request')
+var da = require('dalogger')
+require('util').inherits(bptf, require('events').EventEmitter);
 
-/*	
-	* Start of api auxiliary
-	* https://backpack.tf/api/docs/auxiliary
-*/
-function getApiKey(accessToken, callback){
-	if(typeof accessToken !== 'string'){
-		throw new Error("Access token must be a string")
-	}else if(typeof callback !== 'function'){
-		throw new Error("Callback not provided or is not a function")
-	}
+module.exports = bptf
+
+function bptf(accessToken, apiKey){
+	var self = this
+	self.accessToken = accessToken
+	self.apiKey = apiKey
+}
+
+bptf.prototype.getApiKey = function(callback){
+	var self = this
 	return new Promise(function(resolve, reject){
-		request.get('https://backpack.tf/api/aux/key/v1?token=' + accessToken, function(err, httpResponse, body){
+		request.get('https://backpack.tf/api/aux/key/v1?token=' + self.accessToken, function(err, httpResponse, body){
 			if(err) callback(err, null)
 			else if(body){
-				var a = JSON.parse(body)
-				if(!a["key"]){
-					callback(a['message'], null)
+				var parsed = JSON.parse(body)
+				if(!parsed["key"]){
+					callback(parsed['message'], null)
 				}else{
-					callback(null, a['key']['$oid'])
+					callback(null, parsed['key']['$oid'])
+					self.apiKey = parsed['key']['$oid']
 				}
 			}
 		})
 	})
 }
 
-function getAccessToken(apiKey, callback){
-	if(typeof apiKey !== 'string'){
-		throw new Error("ApiKey must be a string")
-	}else if(typeof callback !== 'function'){
-		throw new Error("Callback not provided or is not a function")
-	}
+bptf.prototype.getAccessToken = function(callback){
+	var self = this
 	
-	request.get('https://backpack.tf/api/aux/token/v1?' + apiKey, function(err, httpResponse, body){
+	request.get('https://backpack.tf/api/aux/token/v1?key=' + self.apiKey, function(err, httpResponse, body){
 		if(err) throw err
-		else callback(null, accessToken)
-	})
-}
-
-function sendHeartbeat(accessToken, callback){
-	var hb = {token: accessToken, automatic: "all"}
-	request.post({
-		url: 'https://backpack.tf/api/aux/heartbeat/v1?token=',
-		form: hb
-	}, 
-	function(err, httpResponse, body){
-		if(err) throw new Error(err)
-		else {
-			var a = JSON.parse(body)
-			if(a['message']){
-				callback(a['message'], null)
+		else if(body){
+			var parsed = JSON.parse(body)
+			if(parsed['token'] !== undefined){
+				callback(null, parsed['token'])
+				self.accessToken = parsed['token']
 			}else{
-				callback(null, "Heartbeat sent to backpack.tf")
+				callback(parsed['message'], null)
 			}
 		}
 	})
 }
 
-exports.getAccessToken = getAccessToken
-exports.getApiKey = getApiKey
-exports.sendHeartbeat = sendHeartbeat
-
-/* 
-	*End of api auxiliary
-*/
-
-
-
-
-
-
-
-
+bptf.prototype.sendHeartbeat = function(type, callback){
+	if(typeof type !== "string" && type !== undefined){
+		throw new Error("Type must be a string")
+	}else{
+		var self = this
+		
+		var hb = {
+			automatic: type
+		}
+		request.post({
+			url: 'https://backpack.tf/api/aux/heartbeat/v1?token=' + self.accessToken,
+			form: hb
+		}, 
+		function(err, httpResponse, body){
+			if(err) throw new Error(err)
+			else {
+				var a = JSON.parse(body)
+				if(a['message']){
+					callback(a['message'])
+				}
+			}
+		})
+	}
+}
