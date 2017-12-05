@@ -18,7 +18,7 @@ bptf.sendHeartbeat("all", function(err){
 })
 
 bptf.createBuyListingByName({
-	"name": " AWPer Hand",
+	"item": " AWPer Hand",
 	"price": {
 		"keys": 0,
 		"metals": 0.22
@@ -35,9 +35,32 @@ bptf.createBuyListing({
 	"craftable": "Non-Craftable",
 	"price": {
 		"keys": 0,
-		"metal": 0.22
+		"metals": 0.22
 	}
 }, function(err, response){
 	if(err) console.log(err)
-	else console.log(response)
+})
+
+bptf.createSellListing({
+	"item": "Class Token - Scout",
+	"id": "68468484"
+	"craftable": "Craftable",
+	"price": {
+		"keys": 0,
+		"metals": 0.33
+	}
+}, function(err){
+	if(err) console.log(err)
+})
+
+bptf.createSellListingByName({
+	"item": "Class Token - Scout",
+	"id": "68468484"
+	"craftable": "Craftable",
+	"price": {
+		"keys": 0,
+		"metals": 0.33
+	}
+}, function(err){
+	if(err) console.log(err)
 })

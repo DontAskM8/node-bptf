@@ -91,7 +91,8 @@ bptf.prototype.createBuyListing = function(_listing, callback){
 				"currencies": {
 					"keys": _listing["price"].keys.toString() || "0",
 					"metal": _listing["price"].metals.toString() || "0"
-				}
+				},
+				"details": _listing["details"] || ""
 			}]
 		}
 		var self = this
@@ -114,16 +115,20 @@ bptf.prototype.createBuyListing = function(_listing, callback){
 	}
 }
 
-bptf.prototype.createBuyListingByName = function(item, callback){
-	if(typeof item !== "object"){
-		callback("You need an object with item's name and price")
+bptf.prototype.createBuyListingByName = function(_listing, callback){
+	if(typeof _listing !== "object"){
+		callback("Listing MUST be in an Object")
+	}else if(_listing["item"] == undefined){
+		callback("Please provide a item's name")
+	}else if(_listing["price"] === undefined || (_listing["price"].keys == undefined && _listing["price"].metal == undefined)){
+		callback("Please provide the price of the item")
 	}
 	
-	var itemName = item["name"].trim()
-	var keys = item["price"]["keys"] || 0
-	var metals = item["price"]["metals"] || 0
-	var _craftable = item["craftable"].trim() || "Craftable"
-	var details = item["details"].trim() || ""
+	var itemName = _listing["item"].trim()
+	var keys = _listing["price"]["keys"] || 0
+	var metals = _listing["price"]["metals"] || 0
+	var _craftable = _listing["craftable"].trim() || "Craftable"
+	var details = _listing["details"] || ""
 	
 	var listing = []
 	
@@ -185,6 +190,131 @@ bptf.prototype.createBuyListingByName = function(item, callback){
 			})
 		}
 	})
+}
+
+bptf.prototype.createSellListing = function(_listing, callback){
+	if(typeof _listing !== "object"){
+		callback("Listing MUST be in an Object")
+	}else if(_listing["item"] == undefined){
+		callback("Please provide a item's name")
+	}else if(_listing["price"] === undefined || (_listing["price"].keys == undefined && _listing["price"].metal == undefined)){
+		callback("Please provide the price of the item")
+	}else if(_listing["id"] === undefined){
+		callback("You need an item's assetid to create a sell listing")
+	}else{
+		var listing = {
+			"listings": [{
+				"intent": 1,
+				"id": _listing["id"],
+				"item": {
+					"quality": _listing["quality"] || "6",
+					"item_name": _listing["item"],
+					"craftable": _listing["craftable"] || "Craftable"
+				},
+				"currencies": {
+					"keys": _listing["price"].keys.toString() || "0",
+					"metal": _listing["price"].metals.toString() || "0"
+				},
+				"details": _listing["price"].details || ""
+			}]
+		}
+		var self = this
+		request.post({
+			url: "https://backpack.tf/api/classifieds/list/v1?token=" + self.accessToken,
+			form: listing
+		}, function(err, httpResponse, body){
+			if(err) callback(err.message)
+			else if(body){
+				var parsed = JSON.parse(body)
+				Object.keys(parsed["listings"]).forEach(function(itemName){
+					if(parsed["listings"][itemName].error){
+						callback(enums.createListingError[parsed["listings"][itemName].error])
+					}else if(parsed["listings"][itemName].created){
+						callback(null)
+					}
+				})
+			}
+		})
+	}
+}
+
+bptf.prototype.createSellListingByName = function(_listing, callback){
+	if(typeof _listing !== "object"){
+		callback("Listing MUST be in an Object")
+	}else if(_listing["item"] == undefined){
+		callback("Please provide a item's name")
+	}else if(_listing["price"] === undefined || (_listing["price"].keys == undefined && _listing["price"].metal == undefined)){
+		callback("Please provide the price of the item")
+	}else if(_listing["id"] === undefined){
+		callback("You need an item's assetid to create a sell listing")
+	}else{
+		var itemName = _listing["item"].trim()
+		var keys = _listing["price"]["keys"] || 0
+		var metals = _listing["price"]["metals"] || 0
+		var _craftable = _listing["craftable"].trim() || "Craftable"
+		var details = _listing["details"] || ""
+		
+		var listing = []
+		
+		if(itemName.indexOf("Genuine") >= 0){
+			var _itemName = itemName.replace("Genuine", "").trim()
+			var __itemName = _itemName.replace("The", "").trim()
+			listing.push({"intent": "1","item": {"quality": "1","item_name": _itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+			listing.push({"intent": "1","item": {"quality": "1","item_name": __itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+		}else if(itemName.indexOf("Vintage") >= 0){
+			var _itemName = itemName.replace("Vintage", "").trim()
+			var __itemName = _itemName.replace("The", "").trim()
+			listing.push({"intent": "1","item": {"quality": "3","item_name": _itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+			listing.push({"intent": "1","item": {"quality": "3","item_name": __itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+		}else if(itemName.indexOf("Unusual") >= 0){
+			var _itemName = itemName.replace("Unusual", "").trim()
+			var __itemName = _itemName.replace("The", "").trim()
+			listing.push({"intent": "1","item": {"quality": "5","item_name": _itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+			listing.push({"intent": "1","item": {"quality": "5","item_name": __itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+		}else if(itemName.indexOf("Strange") >= 0){
+			var _itemName = itemName.replace("Strange", "").trim()
+			var __itemName = _itemName.replace("The", "").trim()
+			listing.push({"intent": "1","item": {"quality": "11","item_name": _itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+			listing.push({"intent": "1","item": {"quality": "11","item_name": __itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+		}else if(itemName.indexOf("Haunted") >= 0){
+			var _itemName = itemName.replace("Haunted", "").trim()
+			var __itemName = _itemName.replace("The", "").trim()
+			listing.push({"intent": "1","item": {"quality": "13","item_name": _itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+			listing.push({"intent": "1","item": {"quality": "13","item_name": __itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+		}else if(itemName.indexOf("Collector's") >= 0){
+			var _itemName = itemName.replace("Collector's", "").trim()
+			var __itemName = _itemName.replace("The", "").trim()
+			listing.push({"intent": "1","item": {"quality": "14","item_name": _itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+			listing.push({"intent": "1","item": {"quality": "14","item_name": __itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+		}else{
+			var _itemName = itemName
+			var __itemName = _itemName.replace("The", "").trim()
+			listing.push({"intent": "1","item": {"quality": "1","item_name": _itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+			listing.push({"intent": "1","item": {"quality": "1","item_name": __itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+		}
+		
+		var self = this
+		
+		request.post({
+			url: "https://backpack.tf/api/classifieds/list/v1?token=",
+			form: {
+				"token": self.accessToken,
+				"listings": listing
+			}
+		}, function(err, httpResponse, body){
+			if(err) callback(err.message)
+			else {
+				var parsed = JSON.parse(body)
+				Object.keys(parsed["listings"]).forEach(function(itemName){
+					if(parsed["listings"][itemName].error){
+						callback(enums.createListingError[parsed["listings"][itemName].error])
+					}else if(parsed["listings"][itemName].created){
+						callback(null)
+					}
+				})
+			}
+		})
+	}
 }
 
 bptf.prototype.deleteListings = function(arrayOfIds, callback){
