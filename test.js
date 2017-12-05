@@ -1,4 +1,5 @@
 var bptfApi = require('./index.js')
+var da = require('dalogger')
 
 var bptf = new bptfApi("accessToken", "apiKey")
 
@@ -26,7 +27,7 @@ bptf.createBuyListingByName({
 	"craftable": "Craftable",
 	"details": "Node module test"
 }, function(err){
-	if(err) console.log(err)
+	if(err) da.error(err)
 })
 
 bptf.createBuyListing({

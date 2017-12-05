@@ -103,11 +103,9 @@ bptf.prototype.createBuyListing = function(_listing, callback){
 			if(err) callback(err.message)
 			else if(body){
 				var parsed = JSON.parse(body)
-				Object.keys(parsed["listings"]).forEach(function(itemName){
-					if(parsed["listings"][itemName].error){
-						callback(enums.createListingError[parsed["listings"][itemName].error])
-					}else if(parsed["listings"][itemName].created){
-						callback(null)
+				Object.keys(parsed["listings"]).forEach(function(item){
+					if(parsed["listings"][item].error){
+						callback(enums.createListingError[parsed["listings"][item].error])
 					}
 				})
 			}
@@ -165,8 +163,8 @@ bptf.prototype.createBuyListingByName = function(_listing, callback){
 	}else{
 		var _itemName = itemName
 		var __itemName = _itemName.replace("The", "").trim()
-		listing.push({"intent": "0","item": {"quality": "1","item_name": _itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
-		listing.push({"intent": "0","item": {"quality": "1","item_name": __itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+		listing.push({"intent": "0","item": {"quality": "6","item_name": _itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+		listing.push({"intent": "0","item": {"quality": "6","item_name": __itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
 	}
 	
 	var self = this
@@ -181,11 +179,9 @@ bptf.prototype.createBuyListingByName = function(_listing, callback){
 		if(err) callback(err.message)
 		else {
 			var parsed = JSON.parse(body)
-			Object.keys(parsed["listings"]).forEach(function(itemName){
-				if(parsed["listings"][itemName].error){
-					callback(enums.createListingError[parsed["listings"][itemName].error])
-				}else if(parsed["listings"][itemName].created){
-					callback(null)
+			Object.keys(parsed["listings"]).forEach(function(item){
+				if(parsed["listings"][item].error){
+					callback(enums.createListingError[parsed["listings"][item].error])
 				}
 			})
 		}
@@ -226,11 +222,9 @@ bptf.prototype.createSellListing = function(_listing, callback){
 			if(err) callback(err.message)
 			else if(body){
 				var parsed = JSON.parse(body)
-				Object.keys(parsed["listings"]).forEach(function(itemName){
-					if(parsed["listings"][itemName].error){
-						callback(enums.createListingError[parsed["listings"][itemName].error])
-					}else if(parsed["listings"][itemName].created){
-						callback(null)
+				Object.keys(parsed["listings"]).forEach(function(item){
+					if(parsed["listings"][item].error){
+						callback(enums.createListingError[parsed["listings"][item].error])
 					}
 				})
 			}
@@ -255,7 +249,6 @@ bptf.prototype.createSellListingByName = function(_listing, callback){
 		var details = _listing["details"] || ""
 		
 		var listing = []
-		
 		if(itemName.indexOf("Genuine") >= 0){
 			var _itemName = itemName.replace("Genuine", "").trim()
 			var __itemName = _itemName.replace("The", "").trim()
@@ -289,8 +282,8 @@ bptf.prototype.createSellListingByName = function(_listing, callback){
 		}else{
 			var _itemName = itemName
 			var __itemName = _itemName.replace("The", "").trim()
-			listing.push({"intent": "1","item": {"quality": "1","item_name": _itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
-			listing.push({"intent": "1","item": {"quality": "1","item_name": __itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+			listing.push({"intent": "1","item": {"quality": "6","item_name": _itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
+			listing.push({"intent": "1","item": {"quality": "6","item_name": __itemName,"craftable": _craftable},"currencies": {"keys": keys,"metal": metals},"details": details})
 		}
 		
 		var self = this
@@ -305,11 +298,9 @@ bptf.prototype.createSellListingByName = function(_listing, callback){
 			if(err) callback(err.message)
 			else {
 				var parsed = JSON.parse(body)
-				Object.keys(parsed["listings"]).forEach(function(itemName){
-					if(parsed["listings"][itemName].error){
-						callback(enums.createListingError[parsed["listings"][itemName].error])
-					}else if(parsed["listings"][itemName].created){
-						callback(null)
+				Object.keys(parsed["listings"]).forEach(function(item){
+					if(parsed["listings"][item].error){
+						callback(enums.createListingError[parsed["listings"][item].error])
 					}
 				})
 			}
@@ -352,7 +343,7 @@ bptf.prototype.deleteAllListings = function(callback){
 	
 	var ids = []
 	
-	request.get("https://backpack.tf/api/classifieds/listings/v1?token=5926c9c1e33877061e0a8178", function(err, httpResponse, body){
+	request.get("https://backpack.tf/api/classifieds/listings/v1?token=" + self.accessToken, function(err, httpResponse, body){
 		if(err) callback(err.message, null)
 		else {
 			var parsed = JSON.parse(body)
@@ -372,7 +363,6 @@ bptf.prototype.deleteAllListings = function(callback){
 					if(parsed["message"]){
 						callback(parsed["message"], null)
 					}else{
-						console.log(parsed)
 						callback(null, "Deleted " + parsed["deleted"] + " listings.")
 					}
 				}
