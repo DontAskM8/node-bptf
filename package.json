@@ -1,11 +1,17 @@
 {
   "name": "bptf",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Module used to interact with bptf",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "dalogger": "^1.3.4",
+    "events": "^1.1.1",
+    "request": "^2.83.0",
+    "util": "^0.10.3"
+  }
 }

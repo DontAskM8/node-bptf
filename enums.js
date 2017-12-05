@@ -1,0 +1,27 @@
+exports.createListingError = {
+	"OK": 0,
+    "ItemNotInInventory": 1,
+    "InvalidItem": 2,
+    "ItemNotListable": 3,
+    "ItemNotTradable": 4,
+    "MarketplaceItemNotPriced": 5,
+    "RelistTimeout": 6,
+    "ListingCapExceeded": 7,
+    "CurrenciesNotSpecified": 8,
+    "CyclicCurrency": 9,
+    "PriceNotSpecified": 10,
+    "UnknownIntent": 11,
+	
+	"0": "OK",
+	"1": "ItemNotInInventory",
+	"2": "InvalidItem",
+	"3": "ItemNotListable",
+	"4": "ItemNotTradable",
+	"5": "MarketplaceItemNotPriced",
+	"6": "RelistTimeout",
+	"7": "ListingCapExceeded",
+	"8": "CurrenciesNotSpecified",
+	"9": "CyclicCurrency",
+	"10": "PriceNotSpecified",
+	"11": "UnknownIntent"
+}
