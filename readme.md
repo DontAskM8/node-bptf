@@ -34,6 +34,20 @@
 * `callback` - Error
 	* `err` - Error if error occured, null if success
 
+### createBuyListings(listing, callback)
+* Creates multiple listing on bptf.
+* `listings` - An array that contain multiple `listing` objects
+	* `listing` - An object that contains the details of the item
+		* `item` - Name of the item (based on backpack.tf) ***Required**
+		* `quality` - Quality name (Case sensitive) or quality number ***Defaults to Unique if not set**
+		* `craftable` - `Craftable` or `Non-Craftable` ONLY ***Defaults to Craftable if not set**
+		* `price` - The price of the item
+			* `keys` - Amount of keys ***0 if not set**
+			* `metals` - Amount in Refined ***0 if not set**
+		* `details` - What you want to say in the listing ***Optional**
+* `callback` - Error
+	* `err` - Error if error occured, null if success
+	
 ### createBuyListingByName(listing, callback)
 * Similar to [createBuyListing](https://github.com/xLeeJYx/node-bptf/wiki/Methods#createbuylistinglisting-callback) but uses `market_hash_name`
 * `listing` - An object that contains the details of the item
@@ -43,6 +57,19 @@
 		* `keys` - Amount in keys ***0 if not set**
 		* `metals` - Amount in Refined ***0 if not set**
 	* `details` - What you want to say in the listing ***Optional**
+* `callback` - Error
+	* `err` - Error if error occured, null if success
+	
+### createBuyListingsByName(listings, callback)
+* Similar to [createBuyListing](https://github.com/xLeeJYx/node-bptf/wiki/Methods#createbuylistinglisting-callback) but uses `market_hash_name`
+* `listings` - An array that contain multiple `listing` objects
+	* `listing` - An object that contains the details of the item
+		* `item` - Name of the item (market_hash_name) ***Required**
+		* `craftable` - `Craftable` or `Non-Craftable` ONLY ***Defaults to Craftable if not set**
+		* `price` - The price of the item
+			* `keys` - Amount in keys ***0 if not set**
+			* `metals` - Amount in Refined ***0 if not set**
+		* `details` - What you want to say in the listing ***Optional**
 * `callback` - Error
 	* `err` - Error if error occured, null if success
 
@@ -60,6 +87,21 @@
 * `callback` - Error
 	* `err` - Error if error occured, null if success
 
+### createSellListings(listings, callback)
+* Used to create a buy listing on bptf.
+* `listings` - An array that contain multiple `listing` objects
+	* `listing` - An object that contains the details of the item
+		* `item` - Name of the item (based on backpack.tf) ***Required**
+		* `id` - Assetid of the item you are selling
+		* `quality` - Quality name (Case sensitive) or quality number ***Defaults to Unique if not set**
+		* `craftable` - `Craftable` or `Non-Craftable` ONLY ***Defaults to Craftable if not set**
+		* `price` - The price of the item
+			* `keys` - Amount of keys ***0 if not set**
+			* `metals` - Amount in Refined ***0 if not set**
+		* `details` - What you want to say in the listing ***Optional**
+* `callback` - Error
+	* `err` - Error if error occured, null if success
+
 ### createSellListingByName(listing, callback)
 * Similar to [createBuyListing](https://github.com/xLeeJYx/node-bptf/wiki/Methods#createselllistinglisting-callback) but uses `market_hash_name`
 * `listing` - An object that contains the details of the item
@@ -70,6 +112,20 @@
 		* `keys` - Amount in keys ***0 if not set**
 		* `metals` - Amount in Refined ***0 if not set**
 	* `details` - What you want to say in the listing ***Optional**
+** `callback` - Error
+	* `err` - Error if error occured, null if success
+	
+### createSellListingsByName(listings, callback)
+* Similar to [createBuyListing](https://github.com/xLeeJYx/node-bptf/wiki/Methods#createselllistinglisting-callback) but uses `market_hash_name`
+* `listings` - An array that contain multiple `listing` objects
+	* `listing` - An object that contains the details of the item
+		* `item` - Name of the item (market_hash_name) ***Required**
+		* `id` - Assetid of the item you are selling
+		* `craftable` - `Craftable` or `Non-Craftable` ONLY ***Defaults to Craftable if not set**
+		* `price` - The price of the item
+			* `keys` - Amount in keys ***0 if not set**
+			* `metals` - Amount in Refined ***0 if not set**
+		* `details` - What you want to say in the listing ***Optional**
 ** `callback` - Error
 	* `err` - Error if error occured, null if success
 	
