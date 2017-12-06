@@ -1,4 +1,4 @@
-#node-bptf
+# node-bptf
 
 ### getApiKey(accessToken, callback)  
 * Used to get api key using access token.
