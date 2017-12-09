@@ -65,3 +65,20 @@ bptf.createSellListingByName({
 }, function(err){
 	if(err) console.log(err)
 })
+
+bptf.createBuyListingsByName([
+	{
+		"item": "AWPer Hand",
+		"price": {
+			"metals": "0.22"
+		}
+	},
+	{
+		"item": "Genuine AWPer Hand",
+		"price": {
+			"metals": "0.22"
+		}
+	}
+], function(err){
+	if(err) console.log(err)
+})

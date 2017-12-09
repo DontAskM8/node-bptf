@@ -1,6 +1,6 @@
 {
   "name": "bptf",
-  "version": "2.2.4",
+  "version": "2.4.1",
   "description": "Module used to interact with bptf",
   "main": "index.js",
   "scripts": {
