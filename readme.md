@@ -16,7 +16,10 @@
 * Used to get that lightning trade button on bptf.
 * `callback` - Error and succeed
 	* `err` - Error if error occured, null if none
-	* `respond` - Null if error
+	
+### refreshBackpacktfBp(steamID)
+* Used to refresh the backpack of someone in backpack.tf  
+* `steamID` - The steam 64 id of the target
 
 ### createBuyListing(listing, callback)
 * Used to create a buy listing on bptf.

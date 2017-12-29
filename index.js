@@ -46,28 +46,32 @@ bptf.prototype.getAccessToken = function(callback){
 	})
 }
 
-bptf.prototype.sendHeartbeat = function(type, callback){
-	if(typeof type !== "string" && type !== undefined){
-		throw new Error("Type must be a string")
-	}else{
-		var self = this
-		
-		var hb = {
-			automatic: type
-		}
-		request.post({
-			url: 'https://backpack.tf/api/aux/heartbeat/v1?token=' + self.accessToken,
-			form: hb
-		}, 
-		function(err, httpResponse, body){
-			if(err) throw new Error(err)
-			else {
-				var a = JSON.parse(body)
-				if(a['message']){
-					callback(a['message'])
-				}
+bptf.prototype.sendHeartbeat = function(callback){
+	var self = this
+	
+	var hb = {
+		automatic: type
+	}
+	request.post({
+		url: 'https://backpack.tf/api/aux/heartbeat/v1?token=' + self.accessToken,
+		form: hb
+	}, 
+	function(err, httpResponse, body){
+		if(err) throw new Error(err)
+		else {
+			var a = JSON.parse(body)
+			if(a['message']){
+				callback(a['message'])
 			}
-		})
+		}
+	})
+}
+
+bptf.prototype.refreshBackpacktfBp = function(steamID){
+	if(typeof steamID !== "string" && typeof steamID !== "number" && typeof steamID == undefined){
+		throw "Please provide the steamID of the target you are trying to refresh their backpack."
+	}else{
+		request.get("https://backpack.tf/profiles/" + steamID)
 	}
 }
 
@@ -76,7 +80,7 @@ bptf.prototype.createBuyListing = function(_listing, callback){
 		callback("Listing MUST be in an Object")
 	}else if(_listing["item"] == undefined){
 		callback("Please provide a item's name")
-	}else if(_listing["price"] === undefined || (_listing["price"].keys == undefined && _listing["price"].metal == undefined)){
+	}else if(_listing["price"] === undefined || (_listing["price"].keys == undefined && _listing["price"].metals == undefined)){
 		callback("Please provide the price of the item")
 	}else{
 		if(!_listing["craftable"]){
@@ -91,8 +95,8 @@ bptf.prototype.createBuyListing = function(_listing, callback){
 					"craftable": _listing["craftable"] || "Craftable"
 				},
 				"currencies": {
-					"keys": _listing["price"].keys.toString() || "0",
-					"metal": _listing["price"].metals.toString() || "0"
+					"keys": _listing["price"].keys || "0",
+					"metal": _listing["price"].metals || "0"
 				},
 				"details": _listing["details"] || ""
 			}]
@@ -105,11 +109,15 @@ bptf.prototype.createBuyListing = function(_listing, callback){
 			if(err) callback(err.message)
 			else if(body){
 				var parsed = JSON.parse(body)
-				Object.keys(parsed["listings"]).forEach(function(item){
-					if(parsed["listings"][item].error){
-						callback(enums.createListingError[parsed["listings"][item].error])
-					}
-				})
+				if(parsed["message"]){
+					callback(parsed["message"])
+				}else{
+					Object.keys(parsed["listings"]).forEach(function(item){
+						if(parsed["listings"][item].error){
+							callback(enums.createListingError[parsed["listings"][item].error])
+						}
+					})
+				}
 			}
 		})
 	}
@@ -147,23 +155,33 @@ bptf.prototype.createBuyListings = function(_listing, callback){
 			}
 		})
 		var self = this
-		request.post({
-			url: "https://backpack.tf/api/classifieds/list/v1?token=",
-			form: {
-				"token": self.accessToken,
-				"listings": listing
-			}
-		}, function(err, httpResponse, body){
-			if(err) callback(err.message)
-			else if(body){
-				var parsed = JSON.parse(body)
-				Object.keys(parsed["listings"]).forEach(function(item){
-					if(parsed["listings"][item].error){
-						callback(enums.createListingError[parsed["listings"][item].error])
+		var bunchOflisting = []
+		for(i=0; i<listing.length; i+=100){
+			bunchOflisting.push(listing.slice(i,i+100))
+		}
+		for(i in bunchOflisting){
+			request.post({
+				url: "https://backpack.tf/api/classifieds/list/v1?token=",
+				form: {
+					"token": self.accessToken,
+					"listings": bunchOflisting[i]
+				}
+			}, function(err, httpResponse, body){
+				if(err) callback(err.message)
+				else {
+					var parsed = JSON.parse(body)
+					if(parsed["message"]){
+						callback(parsed["message"])
+					}else{
+						Object.keys(parsed["listings"]).forEach(function(item){
+							if(parsed["listings"][item].error){
+								callback(enums.createListingError[parsed["listings"][item].error])
+							}
+						})
 					}
-				})
-			}
-		})
+				}
+			})
+		}
 	}
 }
 
@@ -172,7 +190,7 @@ bptf.prototype.createBuyListingByName = function(_listing, callback){
 		callback("Listing MUST be in an Object")
 	}else if(_listing["item"] == undefined){
 		callback("Please provide a item's name")
-	}else if(_listing["price"] === undefined || (_listing["price"].keys == undefined && _listing["price"].metal == undefined)){
+	}else if(_listing["price"] === undefined || (_listing["price"].keys == undefined && _listing["price"].metals == undefined)){
 		callback("Please provide the price of the item")
 	}
 	
@@ -237,11 +255,15 @@ bptf.prototype.createBuyListingByName = function(_listing, callback){
 		if(err) callback(err.message)
 		else {
 			var parsed = JSON.parse(body)
-			Object.keys(parsed["listings"]).forEach(function(item){
-				if(parsed["listings"][item].error){
-					callback(enums.createListingError[parsed["listings"][item].error])
-				}
-			})
+			if(parsed["message"]){
+				callback(parsed["message"])
+			}else{
+				Object.keys(parsed["listings"]).forEach(function(item){
+					if(parsed["listings"][item].error){
+						callback(enums.createListingError[parsed["listings"][item].error])
+					}
+				})
+			}
 		}
 	})
 }
@@ -312,23 +334,33 @@ bptf.prototype.createBuyListingsByName = function(_listing, callback){
 		})
 		var self = this
 	
-		request.post({
-			url: "https://backpack.tf/api/classifieds/list/v1?token=",
-			form: {
-				"token": self.accessToken,
-				"listings": listing
-			}
-		}, function(err, httpResponse, body){
-			if(err) callback(err.message)
-			else {
-				var parsed = JSON.parse(body)
-				Object.keys(parsed["listings"]).forEach(function(item){
-					if(parsed["listings"][item].error){
-						callback(enums.createListingError[parsed["listings"][item].error])
+		var bunchOflisting = []
+		for(i=0; i<listing.length; i+=100){
+			bunchOflisting.push(listing.slice(i,i+100))
+		}
+		for(i in bunchOflisting){
+			request.post({
+				url: "https://backpack.tf/api/classifieds/list/v1?token=",
+				form: {
+					"token": self.accessToken,
+					"listings": bunchOflisting[i]
+				}
+			}, function(err, httpResponse, body){
+				if(err) callback(err.message)
+				else {
+					var parsed = JSON.parse(body)
+					if(parsed["message"]){
+						callback(parsed["message"])
+					}else{
+						Object.keys(parsed["listings"]).forEach(function(item){
+							if(parsed["listings"][item].error){
+								callback(enums.createListingError[parsed["listings"][item].error])
+							}
+						})
 					}
-				})
-			}
-		})
+				}
+			})
+		}
 	}
 }
 
@@ -337,7 +369,7 @@ bptf.prototype.createSellListing = function(_listing, callback){
 		callback("Listing MUST be in an Object")
 	}else if(_listing["item"] == undefined){
 		callback("Please provide a item's name")
-	}else if(_listing["price"] === undefined || (_listing["price"].keys == undefined && _listing["price"].metal == undefined)){
+	}else if(_listing["price"] === undefined || (_listing["price"].keys == undefined && _listing["price"].metals == undefined)){
 		callback("Please provide the price of the item")
 	}else if(_listing["id"] === undefined){
 		callback("You need an item's assetid to create a sell listing")
@@ -356,8 +388,8 @@ bptf.prototype.createSellListing = function(_listing, callback){
 					"craftable": _listing["craftable"] || "Craftable"
 				},
 				"currencies": {
-					"keys": _listing["price"].keys.toString() || "0",
-					"metal": _listing["price"].metals.toString() || "0"
+					"keys": _listing["price"].keys || "0",
+					"metal": _listing["price"].metals || "0"
 				},
 				"details": _listing["price"].details || ""
 			}]
@@ -370,11 +402,19 @@ bptf.prototype.createSellListing = function(_listing, callback){
 			if(err) callback(err.message)
 			else if(body){
 				var parsed = JSON.parse(body)
-				Object.keys(parsed["listings"]).forEach(function(item){
-					if(parsed["listings"][item].error){
-						callback(enums.createListingError[parsed["listings"][item].error])
+				if(parsed["message"]){
+					callback(parsed["message"])
+				}else{
+					if(parsed["message"]){
+						callback(parsed["message"])
+					}else{
+						Object.keys(parsed["listings"]).forEach(function(item){
+							if(parsed["listings"][item].error){
+								callback(enums.createListingError[parsed["listings"][item].error])
+							}
+						})
 					}
-				})
+				}
 			}
 		})
 	}
@@ -412,23 +452,33 @@ bptf.prototype.createSellListings = function(_listing, callback){
 			}
 		})
 		var self = this
-		request.post({
-			url: "https://backpack.tf/api/classifieds/list/v1?token=",
-			form: {
-				"token": self.accessToken,
-				"listings": listing
-			}
-		}, function(err, httpResponse, body){
-			if(err) callback(err.message)
-			else if(body){
-				var parsed = JSON.parse(body)
-				Object.keys(parsed["listings"]).forEach(function(item){
-					if(parsed["listings"][item].error){
-						callback(enums.createListingError[parsed["listings"][item].error])
+		var bunchOflisting = []
+		for(i=0; i<listing.length; i+=100){
+			bunchOflisting.push(listing.slice(i,i+100))
+		}
+		for(i in bunchOflisting){
+			request.post({
+				url: "https://backpack.tf/api/classifieds/list/v1?token=",
+				form: {
+					"token": self.accessToken,
+					"listings": bunchOflisting[i]
+				}
+			}, function(err, httpResponse, body){
+				if(err) callback(err.message)
+				else {
+					var parsed = JSON.parse(body)
+					if(parsed["message"]){
+						callback(parsed["message"])
+					}else{
+						Object.keys(parsed["listings"]).forEach(function(item){
+							if(parsed["listings"][item].error){
+								callback(enums.createListingError[parsed["listings"][item].error])
+							}
+						})
 					}
-				})
-			}
-		})
+				}
+			})
+		}
 	}
 }
 
@@ -503,11 +553,15 @@ bptf.prototype.createSellListingByName = function(_listing, callback){
 			if(err) callback(err.message)
 			else {
 				var parsed = JSON.parse(body)
-				Object.keys(parsed["listings"]).forEach(function(item){
-					if(parsed["listings"][item].error){
-						callback(enums.createListingError[parsed["listings"][item].error])
-					}
-				})
+				if(parsed["message"]){
+					callback(parsed["message"])
+				}else{
+					Object.keys(parsed["listings"]).forEach(function(item){
+						if(parsed["listings"][item].error){
+							callback(enums.createListingError[parsed["listings"][item].error])
+						}
+					})
+				}
 			}
 		})
 	}
@@ -582,23 +636,33 @@ bptf.prototype.createSellListingsByName = function(_listing, callback){
 		})
 		var self = this
 	
-		request.post({
-			url: "https://backpack.tf/api/classifieds/list/v1?token=",
-			form: {
-				"token": self.accessToken,
-				"listings": listing
-			}
-		}, function(err, httpResponse, body){
-			if(err) callback(err.message)
-			else {
-				var parsed = JSON.parse(body)
-				Object.keys(parsed["listings"]).forEach(function(item){
-					if(parsed["listings"][item].error){
-						callback(enums.createListingError[parsed["listings"][item].error])
+		var bunchOflisting = []
+		for(i=0; i<listing.length; i+=100){
+			bunchOflisting.push(listing.slice(i,i+100))
+		}
+		for(i in bunchOflisting){
+			request.post({
+				url: "https://backpack.tf/api/classifieds/list/v1?token=",
+				form: {
+					"token": self.accessToken,
+					"listings": bunchOflisting[i]
+				}
+			}, function(err, httpResponse, body){
+				if(err) callback(err.message)
+				else {
+					var parsed = JSON.parse(body)
+					if(parsed["message"]){
+						callback(parsed["message"])
+					}else{
+						Object.keys(parsed["listings"]).forEach(function(item){
+							if(parsed["listings"][item].error){
+								callback(enums.createListingError[parsed["listings"][item].error])
+							}
+						})
 					}
-				})
-			}
-		})
+				}
+			})
+		}
 	}
 }
 
